@@ -1,14 +1,19 @@
-from flask import Flask, jsonify
+from http.server import BaseHTTPRequestHandler
+import json
 
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return jsonify({"message": "Hello World"})
-
-@app.route('/health')
-def health():
-    return jsonify({"status": "healthy"})
-
-# Vercel 需要這個變數
-app = app 
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        
+        if self.path == '/':
+            response = {"message": "Hello World"}
+        elif self.path == '/health':
+            response = {"status": "healthy"}
+        else:
+            self.send_response(404)
+            response = {"error": "Not Found"}
+            
+        self.wfile.write(json.dumps(response).encode())
+        return 
